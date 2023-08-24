@@ -1,0 +1,211 @@
+---
+title: "arima bank bmri pma"
+author: "Manda Shakira"
+date: "5/20/2022"
+output: pdf_document
+---
+
+#Input data
+```{r}
+data.bank<-read.delim("clipboard",header=F)
+data.bank
+```
+#Mengecek apakah data time series apa bukan
+```{r}
+is.ts(data.bank)
+```
+#Membuat data menjadi time series
+```{r}
+data1=ts(data.bank)
+is.ts(data1)
+```
+
+#Memanggil library
+```{r}
+library(TSA)
+library(tseries)
+library(forecast)
+library(normtest)
+library(lmtest)
+```
+
+#Uji Stasioneritas
+```{r}
+adf.test(data1)
+```
+Interpretasi: p-value = 0,01 < 0,05 sehingga Ho ditolak = data stasioner
+
+#Dengan d=0, Akan dilihat ACF & PACF untuk model utama
+```{r}
+tsdisplay(data1)
+```
+```{r}
+acf(data1)
+pacf(data1)
+```
+
+>Interpretasi: Model ARIMA(p,d,q)
+
+Orde p : pada plot PACF lag yang keluar terakhir di 4 lag pertama = 2 
+Orde q : pada plot ACF lag yang keluar terakhir di 4 lag pertama = 2 
+Orde d : diambil dari differencing/transdormasi ke berapa = 0
+sehingga didapatkan model utama adalah ARIMA(2,0,2)
+
+#Overfitting model
+p = 2, d = 0, q = 2
+
+```{r}
+arima1<-Arima(data1, order=c(0,0,2), include.constant = T)
+arima2<-Arima(data1, order=c(0,0,1), include.constant = T)
+arima3<-Arima(data1, order=c(1,0,2), include.constant = T)
+arima4<-Arima(data1, order=c(1,0,0), include.constant = T)
+arima5<-Arima(data1, order=c(1,0,1), include.constant = T)
+arima6<-Arima(data1, order=c(2,0,2), include.constant = T)
+arima7<-Arima(data1, order=c(2,0,1), include.constant = T)
+arima8<-Arima(data1, order=c(2,0,0), include.constant = T)
+arima9<-Arima(data1, order=c(0,0,2), include.constant = F)
+arima10<-Arima(data1, order=c(0,0,1), include.constant = F)
+arima11<-Arima(data1, order=c(1,0,2), include.constant = F)
+arima12<-Arima(data1, order=c(1,0,0), include.constant = F)
+arima13<-Arima(data1, order=c(1,0,1), include.constant = F)
+arima14<-Arima(data1, order=c(2,0,2), include.constant = F)
+arima15<-Arima(data1, order=c(2,0,1), include.constant = F)
+arima16<-Arima(data1, order=c(2,0,0), include.constant = F)
+```
+
+#Uji Signifikansi Parameter
+```{r}
+coeftest(arima1)
+coeftest(arima2)
+coeftest(arima3)
+coeftest(arima4)
+coeftest(arima5)
+coeftest(arima6)
+coeftest(arima7)
+coeftest(arima8)
+coeftest(arima9)
+coeftest(arima10)
+coeftest(arima11)
+coeftest(arima12)
+coeftest(arima13)
+coeftest(arima14)
+coeftest(arima15)
+coeftest(arima16)
+```
+>Interpretasi: Model yang signifikan/layak, yaitu arima11, arima13, arima15
+
+#Diagnostic Checking
+
+*arima11*
+```{r}
+#autokorelasi
+checkresiduals(arima11)
+#stationary 
+adf.test(residuals(arima11))
+#normality
+jb.norm.test(residuals(arima11))
+```
+*arima13*
+```{r}
+#autokorelasi
+checkresiduals(arima13)
+#stationary 
+adf.test(residuals(arima13))
+#normality
+jb.norm.test(residuals(arima13))
+```
+*arima15*
+```{r}
+#autokorelasi
+checkresiduals(arima15)
+#stationary 
+adf.test(residuals(arima15))
+#normality
+jb.norm.test(residuals(arima15))
+```
+
+#Pemilihan model terbaik
+```{r}
+tabel=cbind(arima11,arima13,arima15)
+tabelperbandingan=cbind(tabel[6,],tabel[16,],tabel[5,])
+colnames(tabelperbandingan)=c('AIC','BIC','Loglik')
+tabelperbandingan
+```
+*KESIMPULAN*
+Model ARIMA terbaik, yaitu model ARIMA(2,0,1) tanpa konstanta
+```{r}
+arima15
+```
+
+
+#Autoarima
+```{r}
+auto.arima(data1, trace = T)
+```
+
+#Forecasting
+```{r}
+forecast.data1<-forecast(arima15, h=10)
+forecast.data1
+plot(forecast.data1)
+```
+
+***********************Pemodelan ARCH-GARCH****************************
+
+#Memanggil library
+```{r}
+library(aTSA)
+library(fGarch)
+```
+
+```{r}
+#arima15(2,0,1)
+model=arima(data1, order = c(2,0,1),include.mean = F)
+coeftest(model)
+```
+
+
+#Uji Heteroskedastis
+```{r}
+arch.test(model)
+```
+
+#Overfitting model ARMA-GARCH
+arma(2,1)
+
+```{r}
+garch1=garchFit(~arma(2,1)+garch(1,1),data=data1,include.mean=T,trace=F)
+```
+```{r}
+garch2=garchFit(~arma(2,1)+garch(1,0),data=data1,include.mean=T,trace=F)
+```
+```{r}
+garch3=garchFit(~arma(2,1)+garch(1,1),data=data1,include.mean=F,trace=F)
+```
+```{r}
+garch4=garchFit(~arma(2,1)+garch(1,0),data=data1,include.mean=F,trace=F)
+```
+
+```{r}
+summary(garch1)
+```
+```{r}
+summary(garch2)
+```
+
+```{r}
+summary(garch3)
+```
+
+```{r}
+summary(garch4)
+```
+
+>Kesimpulan : Dipilih model arma(2,1)garch(1,1)TC yang digunakan untuk mengatasi masalah heteroskedastisitas pada data karena berdasarkan perbandingan AIC BIC nilainya tidak jauh berbeda.
+
+```{r}
+resid1=residuals(garch1)
+library(nortest)
+lillie.test(resid1)
+```
+

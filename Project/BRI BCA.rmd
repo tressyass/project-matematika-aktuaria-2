@@ -1,0 +1,164 @@
+---
+title: "Tester Kelanjutan PMA"
+author: "Tressya"
+date: "5/23/2022"
+output: pdf_document
+---
+```{r}
+library(readxl)
+library(aTSA)
+library(fGarch)
+tester <- read_excel("Tester.xlsx",2)
+tester
+databca=ts(tester$BBCA)
+databri=ts(tester$BBRI)
+```
+
+```{r}
+
+garchbca=garchFit(~arma(0,3)+garch(1,1),data=databca,include.mean=T,trace=F)
+garchbri=garchFit(~arma(2,1)+garch(1,1),data=databri,include.mean=T,trace=F)
+a=data.frame(residuals(garchbca),residuals(garchbri))
+a
+```
+```{r}
+resid1=a$residuals.garchbca.
+resid4=a$residuals.garchbri.
+library(nortest)
+shapiro.test(resid1)
+shapiro.test(resid4)
+```
+
+
+```{r}
+cor.test(a$residuals.garchbca. , a$residuals.garchbri. , alternative="two.sided",method="kendall")
+```
+```{r}
+cor.test(a$residuals.garchbca. , a$residuals.garchbri. , alternative="two.sided",method="spearman")
+```
+
+```{r}
+library(copula)
+nrow(a)
+apply(a[,1:2],2,function(x)length(unique(x)))
+pseudoSR<-apply(a[,1:2],2,rank)/(nrow(a)+1)
+x=a[,1:2]^2
+```
+
+
+```{r}
+normal.copnml<-normalCopula(dim=2)
+fit.nml<-fitCopula(normal.copnml,pseudoSR,method="ml")
+summary(fit.nml)
+```
+
+```{r}
+gumbel.copml<-gumbelCopula(2,dim=2)
+fit.gml<-fitCopula(gumbel.copml,pseudoSR,method="ml")
+summary(fit.gml)
+```
+
+
+```{r}
+#tau.p<-cor(pseudoSR[,1],pseudoSR[,2],method="kendall")
+#tau.p
+```
+
+```{r}
+#clayton.copml<-claytonCopula(2,dim=2)
+#fit.cml<-fitCopula(clayton.copml,pseudoSR,method="ml")
+#fit.cml
+```
+
+
+```{r}
+frank.copml<-frankCopula(2,dim=2)
+fit.fml<-fitCopula(frank.copml,pseudoSR,method="ml")
+summary(fit.fml) 
+```
+
+
+```{r}
+t.copt<-tCopula(dim=2)
+fit.tml<-fitCopula(t.copt,pseudoSR,method="ml")
+summary(fit.tml)
+```
+
+```{r}
+plackett.copml<-plackettCopula(2)
+fit.pml<-fitCopula(plackett.copml,pseudoSR,method="ml")
+summary(fit.pml)
+```
+
+
+```{r}
+library(QRM)
+garch1<-data.frame(tester$BBCA,tester$BBRI)
+garch1
+BCA=garch1$tester.BBCA
+BRI=garch1$tester.BBRI
+i=j=k=0
+n=1261-21
+h=21
+a<-matrix(0,h,n)
+b<-matrix(0,h,n)
+dd<-matrix(0,h,n)
+rnq<-matrix(0,h,1)
+rtq<-matrix(0,h,1)
+rg=matrix(0,h,1)
+rt=matrix(0,h,1)
+raq=matrix(0,h,1)
+rgu=matrix(0,h,1)
+raf=matrix(0,h,1)
+rbf=matrix(0,h,1)
+ for(i in 1:h)
+ {
+   j=1+i;
+   k=n+i;
+   a[i,]=BCA[j:k];
+   b[i,]=BRI[j:k];
+   dd=cbind(a[i,],b[i,]);
+   U<-apply(dd,2,edf,adjust=1);
+fn<-fit.norm(dd)
+rmn<-rmnorm(1000,Sigma=fn$Sigma,fn$mu);
+rmnl<-rmn[,1]+rmn[,2]
+rnq[i]<-quantile(rmnl,.05)
+rag<-rcopula.gauss(1000,Sigma=equicorr(d=2,rho=0.2089 ))
+rgl<-quantile(a[i,],rag[,1])+quantile(b[i,],rag[,2]);
+rg[i]<-quantile(rgl,.05);
+rat<-rcopula.t(1000,df=3.3940,Sigma=equicorr(d=2,rho=0.2159))
+rt1<-quantile(a[i,],rat[,1])+quantile(b[i,],rat[,2]);
+rt[i]<-quantile(rt1,.05)
+#raq<-rcopula.clayton(n=1000,d=2,theta=1.275)
+#rmacl<-quantile(a[i,],raq[,1])+quantile(b[i,],raq[,2]);
+#raq[i]<-quantile(rmacl,.05)
+ragu<-rcopula.gumbel(n=1000,d=2,theta=1.159)
+rgul<-quantile(a[i,],ragu[,1])+quantile(b[i,],ragu[,2]);
+rgu[i]<-quantile(rgul,.05)
+rf<-rcopula.frank(1000,d=2,theta=1.339 )
+rafl<-quantile(a[i,],rf[,1])+quantile(b[i,],rf[,2]);
+raf[i]<-quantile(rafl,.05)
+#rbf<-rcopula.plackett(1000,d=2,theta=8.026)
+#rbfl<-quantile(a[i,],rbf[,1])+quantile(b[i,],rbf[,2]);
+#rbf[i]<-quantile(rbfl,.05)
+ }
+rt
+```
+
+```{r}
+#dd
+library(tseries)
+port.sol=portfolio.optim(dd)
+pf_weights=port.sol$pw
+pf_weights
+```
+
+
+```{r}
+a=mean(rt)
+a
+port_ret=tester$PortRet50
+ES=mean(port_ret[port_ret < a])
+ES
+```
+

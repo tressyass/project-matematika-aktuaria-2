@@ -1,0 +1,324 @@
+---
+title: "Untitled"
+author: "Yohana Franchiska D. Y"
+date: '2022-05-13'
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(readxl)
+bbri <- read_excel("bbri.xlsx", col_names = FALSE, 
+    col_types = c("numeric"))
+bbri
+```
+
+```{r}
+is.ts(bbri)
+```
+```{r}
+bbri.ts=ts(bbri)
+bbri.ts
+```
+```{r}
+is.ts(bbri.ts)
+```
+```{r}
+#me-load packages
+library(TSA)
+library(forecast)
+library(tseries)
+library(normtest)
+library(lmtest)
+```
+
+```{r}
+adf.test(bbri.ts)
+```
+Berdasarkan output diketahui nilai p-value < alpha ($0.01<0.05$), maka $H_0$ ditolak yang artinya data stationer terhadap mean, sehingga tidak perlu dilakukan transformasi data dengan artian ($d=0$)
+
+Selanjutnya, mencari nilai dari $p$ dan $q$ dari grafik ACF dan PACF
+```{r}
+#melihat plot ACF dan PACF
+tsdisplay(bbri.ts)
+acf(bbri.ts)
+pacf(bbri.ts)
+```
+Berdasarkan output, diketahui $p=3$ dan $q=3$.
+
+```{r}
+#Pemilihan model dengan auto.arima
+auto.arima(bbri.ts, trace = T)
+```
+Identifikasi dari model ARIMA yang didapatkan adalah $(3,0,3)$ dan selanjutnya akan dilakukan OVERFITTING untuk menuliskan semua model ARIMA yang memungkinkan.
+```{r}
+arima1=Arima(bbri.ts, order=c(3,0,3), include.constant = T)
+arima2=Arima(bbri.ts, order=c(2,0,3), include.constant = T)
+arima3=Arima(bbri.ts, order=c(1,0,3), include.constant = T)
+arima4=Arima(bbri.ts, order=c(0,0,3), include.constant = T)
+arima5=Arima(bbri.ts, order=c(3,0,2), include.constant = T)
+arima6=Arima(bbri.ts, order=c(2,0,2), include.constant = T)
+arima7=Arima(bbri.ts, order=c(1,0,2), include.constant = T)
+arima8=Arima(bbri.ts, order=c(0,0,2), include.constant = T)
+arima9=Arima(bbri.ts, order=c(3,0,1), include.constant = T)
+arima10=Arima(bbri.ts, order=c(2,0,1), include.constant = T)
+arima11=Arima(bbri.ts, order=c(1,0,1), include.constant = T)
+arima12=Arima(bbri.ts, order=c(0,0,1), include.constant = T)
+arima13=Arima(bbri.ts, order=c(3,0,0), include.constant = T)
+arima14=Arima(bbri.ts, order=c(2,0,0), include.constant = T)
+arima15=Arima(bbri.ts, order=c(1,0,0), include.constant = T)
+arima16=Arima(bbri.ts, order=c(3,0,3), include.constant = F)
+arima17=Arima(bbri.ts, order=c(2,0,3), include.constant = F)
+arima18=Arima(bbri.ts, order=c(1,0,3), include.constant = F)
+arima19=Arima(bbri.ts, order=c(0,0,3), include.constant = F)
+arima20=Arima(bbri.ts, order=c(3,0,2), include.constant = F)
+arima21=Arima(bbri.ts, order=c(2,0,2), include.constant = F)
+arima22=Arima(bbri.ts, order=c(1,0,2), include.constant = F)
+arima23=Arima(bbri.ts, order=c(0,0,2), include.constant = F)
+arima24=Arima(bbri.ts, order=c(3,0,1), include.constant = F)
+arima25=Arima(bbri.ts, order=c(2,0,1), include.constant = F)
+arima26=Arima(bbri.ts, order=c(1,0,1), include.constant = F)
+arima27=Arima(bbri.ts, order=c(0,0,1), include.constant = F)
+arima28=Arima(bbri.ts, order=c(3,0,0), include.constant = F)
+arima29=Arima(bbri.ts, order=c(2,0,0), include.constant = F)
+arima30=Arima(bbri.ts, order=c(1,0,0), include.constant = F)
+```
+
+Kemudian, akan dicek signifikansi parameter dari tiap model.
+#MODEL1
+```{r}
+coeftest(arima1)
+```
+#MODEL2
+```{r}
+coeftest(arima2)
+```
+#MODEL3
+```{r}
+coeftest(arima3)
+```
+#MODEL4
+```{r}
+coeftest(arima4)
+```
+#MODEL5
+```{r}
+coeftest(arima5)
+```
+#MODEL6
+```{r}
+coeftest(arima6)
+```
+#MODEL7
+```{r}
+coeftest(arima7)
+```
+#MODEL8
+```{r}
+coeftest(arima8)
+```
+#MODEL9
+```{r}
+coeftest(arima9)
+```
+#MODEL10
+```{r}
+coeftest(arima10)
+```
+#MODEL11
+```{r}
+coeftest(arima11)
+```
+#MODEL12
+```{r}
+coeftest(arima12)
+```
+#MODEL13
+```{r}
+coeftest(arima13)
+```
+#MODEL14
+```{r}
+coeftest(arima14)
+```
+#MODEL15
+```{r}
+coeftest(arima15)
+```
+#MODEL16
+```{r}
+coeftest(arima16)
+```
+#MODEL17
+```{r}
+coeftest(arima17)
+```
+#MODEL18
+```{r}
+coeftest(arima18)
+```
+#MODEL19
+```{r}
+coeftest(arima19)
+```
+#MODEL20
+```{r}
+coeftest(arima20)
+```
+#MODEL21
+```{r}
+coeftest(arima21)
+```
+#MODEL22
+```{r}
+coeftest(arima22)
+```
+#MODEL23
+```{r}
+coeftest(arima23)
+```
+#MODEL24
+```{r}
+coeftest(arima24)
+```
+#MODEL25
+```{r}
+coeftest(arima25)
+```
+#MODEL26
+```{r}
+coeftest(arima26)
+```
+#MODEL27
+```{r}
+coeftest(arima27)
+```
+#MODEL28
+```{r}
+coeftest(arima28)
+```
+#MODEL29
+```{r}
+coeftest(arima29)
+```
+#MODEL30
+```{r}
+coeftest(arima30)
+```
+#diagnostic checking
+No autokorelasi residual terpenuhi jika p-value>0.05
+Stasioner residual terpenuhi jika p-value<0.05
+Normalitas residual terpenuhi jika p-value>0.05
+#MODEL6
+```{r}
+checkresiduals(arima6) #autokorelasi
+adf.test(residuals(arima6)) #stationary
+jb.norm.test(residuals(arima6)) #normality
+```
+#MODEL7
+```{r}
+checkresiduals(arima7) #autokorelasi
+adf.test(residuals(arima7)) #stationary
+jb.norm.test(residuals(arima7)) #normality
+```
+#MODEL10
+```{r}
+checkresiduals(arima10) #autokorelasi
+adf.test(residuals(arima10)) #stationary
+jb.norm.test(residuals(arima10)) #normality
+```
+#MODEL11
+```{r}
+checkresiduals(arima11) #autokorelasi
+adf.test(residuals(arima11)) #stationary
+jb.norm.test(residuals(arima11)) #normality
+```
+#MODEL21
+```{r}
+checkresiduals(arima21) #autokorelasi
+adf.test(residuals(arima21)) #stationary
+jb.norm.test(residuals(arima21)) #normality
+```
+#MODEL22
+```{r}
+checkresiduals(arima22) #autokorelasi
+adf.test(residuals(arima22)) #stationary
+jb.norm.test(residuals(arima22)) #normality
+```
+#MODEL25
+```{r}
+checkresiduals(arima25) #autokorelasi
+adf.test(residuals(arima25)) #stationary
+jb.norm.test(residuals(arima25)) #normality
+```
+#MODEL26
+```{r}
+checkresiduals(arima26) #autokorelasi
+adf.test(residuals(arima26)) #stationary
+jb.norm.test(residuals(arima26)) #normality
+```
+```{r}
+tabel=cbind(arima6, arima10, arima11, arima21, arima22, arima25, arima26)
+tabelperbandingan=cbind(tabel[6,],tabel[16,],tabel[5,])
+colnames(tabelperbandingan)=c('AIC','BIC','Loglik')
+tabelperbandingan
+```
+↑ loglik
+ ↓ AIC, BIC
+
+
+#GARCH
+```{r}
+library(forecast)
+library(lmtest)
+library(aTSA)
+library(fGarch)
+```
+
+```{r}
+model=arima(bbri.ts, order = c(2,0,1), include.mean = F)
+arch.test(model)
+```
+semua order ditolak H0 nya sehingga bersifat heteroskedastisitas.
+
+```{r}
+garch11t=garchFit(~arma(2,1)+garch(1,1),data=bbri.ts,include.mean=T,trace=
+F)
+garch10t=garchFit(~arma(2,1)+garch(1,0),data=bbri.ts,include.mean=T,trace=
+F)
+garch11f=garchFit(~arma(2,1)+garch(1,1),data=bbri.ts,include.mean=F,trace=
+F)
+garch10f=garchFit(~arma(2,1)+garch(1,0),data=bbri.ts,include.mean=F,trace=
+F)
+```
+```{r}
+summary(garch11t)
+```
+Sudah homoskedastisitas
+```{r}
+summary(garch10t)
+```
+Belum homoskedastisitas
+```{r}
+summary(garch11f)
+```
+Sudah homoskedastisitas
+```{r}
+summary(garch10f)
+```
+Belum homoskedastisitas
+
+Model terbaik : garch11t
+
+Berdasarkan output model ARIMA terbaik yaitu ARMA(2,1)-GARCH(1,1) T ,
+dapat digunakan untuk membuat persamaan model.
+
+
+
+
+
+
+

@@ -1,0 +1,291 @@
+---
+title: "PMA2"
+author: "Jonathan Adriel"
+date: '2022-05-20'
+output: pdf_document
+---
+
+```{r}
+library(forecast)
+library(lmtest)
+library(TSA)
+library(tseries)
+library(normtest)
+library(aTSA)
+library(fGarch)
+```
+
+```{r}
+library(readxl)
+bca<-read_excel("BCA.xlsx", sheet = "Sheet1")
+bca
+```
+
+```{r}
+bca$Date = as.Date(bca$Date)
+bca
+is.ts(bca)
+```
+
+```{r}
+bca.ts<-ts(bca$Return)
+bca.ts
+plot(bca.ts)
+is.ts(bca.ts)
+```
+
+\textbf{1. Uji Stasioneritas data time series}
+```{r}
+adf.test(bca.ts)
+```
+Uji Hipotesis
+
+$H_0$ : data tidak stasioner terhadap mean
+
+$H_1$ : data stasioner terhadap mean
+
+Karena p-value < alpha ($0.01<0.05$), maka $H_0$ ditolak sehingga data \textit{STASIONER} terhadap mean. Karena data sudah stasioner, jadi TIDAK PERLU dilakukan transformasi pada data.
+
+
+\textbf{2. Identifikasi model ARIMA(p,d,q)}
+```{r}
+tsdisplay(bca.ts)
+```
+Dilihat dari grafik PACFnya, diperoleh bahwa $p=3$ (lag yang keluar dari 4 lag terakhir).
+
+Dilihat dari grafik ACFnya, diperoleh bahwa $q=3$.
+
+Karena tidak dilakukan differencing ($d=0$), jadi modelnya adalah \textbf{ARIMA(3,0,3)}.
+
+\textbf{3. Overfitting}
+```{r}
+#Membuat model yang memungkinkan
+m1<-Arima(bca.ts,order=c(3,0,3),include.constant=T)
+m2<-Arima(bca.ts,order=c(3,0,2),include.constant=T)
+m3<-Arima(bca.ts,order=c(3,0,1),include.constant=T)
+m4<-Arima(bca.ts,order=c(3,0,0),include.constant=T)
+m5<-Arima(bca.ts,order=c(2,0,3),include.constant=T)
+m6<-Arima(bca.ts,order=c(2,0,2),include.constant=T)
+m7<-Arima(bca.ts,order=c(2,0,1),include.constant=T)
+m8<-Arima(bca.ts,order=c(2,0,0),include.constant=T)
+m9<-Arima(bca.ts,order=c(1,0,3),include.constant=T)
+m10<-Arima(bca.ts,order=c(1,0,2),include.constant=T)
+m11<-Arima(bca.ts,order=c(1,0,1),include.constant=T)
+m12<-Arima(bca.ts,order=c(1,0,0),include.constant=T)
+m13<-Arima(bca.ts,order=c(0,0,3),include.constant=T)
+m14<-Arima(bca.ts,order=c(0,0,2),include.constant=T)
+m15<-Arima(bca.ts,order=c(0,0,1),include.constant=T)
+m16<-Arima(bca.ts,order=c(3,0,3),include.constant=F)
+m17<-Arima(bca.ts,order=c(3,0,2),include.constant=F)
+m18<-Arima(bca.ts,order=c(3,0,1),include.constant=F)
+m19<-Arima(bca.ts,order=c(3,0,0),include.constant=F)
+m20<-Arima(bca.ts,order=c(2,0,3),include.constant=F)
+m21<-Arima(bca.ts,order=c(2,0,2),include.constant=F)
+m22<-Arima(bca.ts,order=c(2,0,1),include.constant=F)
+m23<-Arima(bca.ts,order=c(2,0,0),include.constant=F)
+m24<-Arima(bca.ts,order=c(1,0,3),include.constant=F)
+m25<-Arima(bca.ts,order=c(1,0,2),include.constant=F)
+m26<-Arima(bca.ts,order=c(1,0,1),include.constant=F)
+m27<-Arima(bca.ts,order=c(1,0,0),include.constant=F)
+m28<-Arima(bca.ts,order=c(0,0,3),include.constant=F)
+m29<-Arima(bca.ts,order=c(0,0,2),include.constant=F)
+m30<-Arima(bca.ts,order=c(0,0,1),include.constant=F)
+```
+
+Uji Hipotesis
+
+$H_0$ : Konstanta/AR/MA tidak signifikan pada model
+
+$H_1$ : Konstanta/AR/MA signifikan pada model
+
+```{r}
+#Uji Signifikansi Parameter setiap kemungkinan model
+coeftest(m1)
+```
+```{r}
+coeftest(m2)
+```
+```{r}
+coeftest(m3)
+```
+```{r}
+coeftest(m4)
+```
+```{r}
+coeftest(m5)
+```
+```{r}
+coeftest(m6)
+```
+```{r}
+coeftest(m7)
+```
+```{r}
+coeftest(m8)
+```
+```{r}
+coeftest(m9)
+```
+```{r}
+coeftest(m10)
+```
+```{r}
+coeftest(m11)
+```
+```{r}
+coeftest(m12)
+```
+```{r}
+coeftest(m13)
+```
+```{r}
+coeftest(m14)
+```
+```{r}
+coeftest(m15)
+```
+```{r}
+coeftest(m16)
+```
+```{r}
+coeftest(m17)
+```
+```{r}
+coeftest(m18)
+```
+```{r}
+coeftest(m19)
+```
+```{r}
+coeftest(m20)
+```
+```{r}
+coeftest(m21)
+```
+```{r}
+coeftest(m22)
+```
+```{r}
+coeftest(m23)
+```
+```{r}
+coeftest(m24)
+```
+```{r}
+coeftest(m25)
+```
+```{r}
+coeftest(m26)
+```
+```{r}
+coeftest(m27)
+```
+```{r}
+coeftest(m28)
+```
+```{r}
+coeftest(m29)
+```
+```{r}
+coeftest(m30)
+```
+\textit{SIGNIFIKAN}: m7 (x), m10 (x), m13 (x), m22, m25, m27, m30. Sisanya tidak signifikan.
+
+```{r}
+autobca=auto.arima(bca.ts, trace = T)
+```
+
+\textbf{4. Uji Diagnostic}
+
+- Tidak terjadi autokorelasi residual terpenuhi jika $p-value>0.05$
+
+- Stasioneritas residual terpenuhi jika $p-value<0.05$ 
+
+- Normalitas residual terpenuhi jika $p-value>0.05$
+```{r}
+checkresiduals(m7) #autocorrelation
+adf.test(residuals(m7)) #stationary
+jb.norm.test(residuals(m7)) #normality
+```
+```{r}
+checkresiduals(m10) #autocorrelation
+adf.test(residuals(m10)) #stationary
+jb.norm.test(residuals(m10)) #normality
+```
+```{r}
+checkresiduals(m13) #autocorrelation
+adf.test(residuals(m13)) #stationary
+jb.norm.test(residuals(m13)) #normality
+```
+```{r}
+checkresiduals(m22) #autocorrelation
+adf.test(residuals(m22)) #stationary
+jb.norm.test(residuals(m22)) #normality
+```
+```{r}
+checkresiduals(m25) #autocorrelation
+adf.test(residuals(m25)) #stationary
+jb.norm.test(residuals(m25)) #normality
+```
+```{r}
+checkresiduals(m27) #autocorrelation
+adf.test(residuals(m27)) #stationary
+jb.norm.test(residuals(m27)) #normality
+```
+```{r}
+checkresiduals(m30) #autocorrelation
+adf.test(residuals(m30)) #stationary
+jb.norm.test(residuals(m30)) #normality
+```
+\textbf{Lolos Uji Signifikansi}: Sama semua
+
+\textbf{5. Pemilihan Model Terbaik}
+```{r}
+tabel=cbind(m7, m10, m13, m22, m25, m27, m30)
+tabelperbandingan=cbind(tabel[6,],tabel[16,],tabel[5,])
+colnames(tabelperbandingan)=c('AIC','BIC','Loglik')
+tabelperbandingan
+```
+
+```{r}
+m13
+```
+
+```{r}
+mbca = arima(bca.ts, order = c(0,0,3), include.mean = T)
+arch.test(mbca)
+```
+
+```{r}
+bca11t=garchFit(~arma(0,3)+garch(1,1),data=bca.ts,include.mean=T,trace=F)
+bca10t=garchFit(~arma(0,3)+garch(1,0),data=bca.ts,include.mean=T,trace=F)
+bca11f=garchFit(~arma(0,3)+garch(1,1),data=bca.ts,include.mean=F,trace=F)
+bca10f=garchFit(~arma(0,3)+garch(1,0),data=bca.ts,include.mean=F,trace=F)
+```
+
+```{r}
+summary(bca11t)
+summary(bca10t)
+```
+
+```{r}
+summary(bca11f)
+summary(bca10f)
+```
+
+Yang dipilih ARMA(0,3), GARCH(1,1) dengan konstanta
+
+```{r}
+res = residuals(bca11t)
+library(nortest)
+lillie.test(res)
+```
+
+```{r}
+library(copula)
+```
+
+```{r}
+
+```
+

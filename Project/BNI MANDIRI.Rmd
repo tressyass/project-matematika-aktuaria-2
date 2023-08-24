@@ -1,0 +1,161 @@
+---
+title: "Tester Kelanjutan PMA"
+author: "Tressya"
+date: "5/23/2022"
+output: pdf_document
+---
+
+```{r}
+library(readxl)
+tester<-read_excel("Tester.xlsx",1)
+tester
+```
+
+```{r}
+data1=ts(tester$Mandiri)
+databni=ts(tester$BNI)
+data.frame(data1,databni)
+```
+
+```{r}
+library(aTSA)
+library(fGarch)
+garch1=garchFit(~arma(2,1)+garch(1,1),data=data1,include.mean=T,trace=F)
+garch11T=garchFit(~arma(4,4)+garch(1,1),data=databni,include.mean=T,trace=F)
+c=data.frame(residuals(garch1),residuals(garch11T))
+c
+```
+
+
+```{r}
+resid2=c$residuals.garch1.
+resid3=c$residuals.garch11T.
+library(nortest)
+shapiro.test(resid2)
+shapiro.test(resid3)
+```
+
+
+```{r}
+cor.test(data1 , databni, alternative="two.sided",method="kendall")
+```
+Karena p-value < 0.05 maka tolak H0 sehingga ada dependensi
+```{r}
+cor.test(c$residuals.garch1. , c$residuals.garch11T. , alternative="two.sided",method="spearman")
+```
+Karena p-value < 0.05 maka ada dependensi antara BBNI dengan BMRI. 
+
+```{r}
+library(copula)
+nrow(c)
+apply(c[,1:2],2,function(x)length(unique(x)))
+pseudo<-apply(c[,1:2],2,rank)/(nrow(c)+1)
+x=c[,1:2]^2
+```
+
+```{r}
+normal.copnml<-normalCopula(dim=2)
+fit.nml<-fitCopula(normal.copnml,pseudo,method="ml")
+summary(fit.nml)
+```
+```{r}
+clayton.copml<-claytonCopula(2,dim=2)
+fit.cml<-fitCopula(clayton.copml,pseudo,method="ml")
+summary(fit.cml)
+```
+
+```{r}
+gumbel.copml<-gumbelCopula(2,dim=2)
+fit.gml<-fitCopula(gumbel.copml,pseudo,method="ml")
+summary(fit.gml)
+```
+
+```{r}
+frank.copml<-frankCopula(2,dim=2)
+fit.fml<-fitCopula(frank.copml,pseudo,method="ml")
+summary(fit.fml)
+```
+
+```{r}
+t.copt<-tCopula(dim=2)
+fit.tml<-fitCopula(t.copt,pseudo,method="ml")
+summary(fit.tml)
+```
+
+```{r}
+plackett.copml<-plackettCopula(2)
+fit.pml<-fitCopula(plackett.copml,pseudo,method="ml")
+summary(fit.pml)
+```
+
+```{r}
+library(QRM)
+garch<-data.frame(tester$BNI,tester$Mandiri)
+#garch
+BNI=garch$tester.BNI
+Mandiri=garch$tester.Mandiri
+i=j=k=0
+n=1259-21
+h=21
+a<-matrix(0,h,n)
+b<-matrix(0,h,n)
+dd<-matrix(0,h,n)
+rnq<-matrix(0,h,1)
+rtq<-matrix(0,h,1)
+rg=matrix(0,h,1)
+rt=matrix(0,h,1)
+raq=matrix(0,h,1)
+rgu=matrix(0,h,1)
+raf=matrix(0,h,1)
+rbf=matrix(0,h,1)
+ for(i in 1:h)
+ {
+   j=1+i;
+   k=n+i;
+   a[i,]=BNI[j:k];
+   b[i,]=Mandiri[j:k];
+   dd=cbind(a[i,],b[i,]);
+   U<-apply(dd,2,edf,adjust=1);
+fn<-fit.norm(dd)
+rmn<-rmnorm(1000,Sigma=fn$Sigma,fn$mu);
+rmnl<-rmn[,1]+rmn[,2]
+rnq[i]<-quantile(rmnl,.05)
+rag<-rcopula.gauss(1000,Sigma=equicorr(d=2,rho=0.6585 ))
+rgl<-quantile(a[i,],rag[,1])+quantile(b[i,],rag[,2]);
+rg[i]<-quantile(rgl,.05);
+rat<-rcopula.t(1000,df=4.0235,Sigma=equicorr(d=2,rho=0.6337))
+rt1<-quantile(a[i,],rat[,1])+quantile(b[i,],rat[,2]);
+rt[i]<-quantile(rt1,.05)
+raq<-rcopula.clayton(n=1000,d=2,theta=1.275)
+rmacl<-quantile(a[i,],raq[,1])+quantile(b[i,],raq[,2]);
+raq[i]<-quantile(rmacl,.05)
+ragu<-rcopula.gumbel(n=1000,d=2,theta=1.745)
+rgul<-quantile(a[i,],ragu[,1])+quantile(b[i,],ragu[,2]);
+rgu[i]<-quantile(rgul,.05)
+rf<-rcopula.frank(1000,d=2,theta=4.626 )
+rafl<-quantile(a[i,],rf[,1])+quantile(b[i,],rf[,2]);
+raf[i]<-quantile(rafl,.05)
+#rbf<-rcopula.plackett(1000,d=2,theta=8.026)
+#rbfl<-quantile(a[i,],rbf[,1])+quantile(b[i,],rbf[,2]);
+#rbf[i]<-quantile(rbfl,.05)
+ }
+rt
+```
+
+```{r}
+#dd
+library(tseries)
+port.sol=portfolio.optim(dd)
+pf_weights=port.sol$pw
+pf_weights
+```
+
+
+```{r}
+b=mean(rt)
+b
+port_ret=tester$PortRet50
+ES=mean(port_ret[port_ret < b])
+ES
+```
+

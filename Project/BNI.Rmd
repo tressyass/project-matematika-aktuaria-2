@@ -1,0 +1,341 @@
+---
+title: "Tester Project PMA"
+author: "Tressya"
+date: "5/13/2022"
+output: pdf_document
+---
+
+```{r}
+library(TSA)
+bni<-read.delim("clipboard", header=F)
+bni
+mean(bni$V1)
+var(bni$V1)
+skewness(bni$V1)
+```
+
+```{r}
+library(nortest) 
+lillie.test(bni$V1)
+databni<-ts(bni)
+is.ts(databni)
+library(TSA)
+library(forecast)
+library(tseries)
+library(normtest)
+library(lmtest)
+# Uji Stasioneritas 
+adf.test(databni)
+```
+p-value < 0.05 maka H0 ditolak sehingga data stasioner terhadap mean sehingga tidak perlu adanya transformasi data terhadap mean dan variansi. 
+```{r}
+plot(databni,main="BBRI",col="blue",xlab="date",ylab="return(%)")
+```
+Terlihat bahwa plot return BNI berbentuk stasioner. 
+```{r}
+tsdisplay(databni)
+```
+
+```{r}
+pacf(databni)
+```
+p=5
+```{r}
+acf(databni)
+```
+q=5. Maka didapatkan model arima(5,0,5)
+```{r}
+#auto.arima(databni,trace=T)
+```
+
+```{r}
+arima1<-Arima(databni, order=c(5,0,5), include.constant = F)
+arima2<-Arima(databni, order=c(4,0,5), include.constant = F)
+arima3<-Arima(databni, order=c(3,0,5), include.constant = F)
+arima4<-Arima(databni, order=c(2,0,5), include.constant = F)
+arima5<-Arima(databni, order=c(1,0,5), include.constant = F)
+arima6<-Arima(databni, order=c(0,0,5), include.constant = F)
+arima7<-Arima(databni, order=c(5,0,4), include.constant = F)
+arima8<-Arima(databni, order=c(4,0,4), include.constant = F)
+arima9<-Arima(databni, order=c(3,0,4), include.constant = F)
+arima10<-Arima(databni, order=c(2,0,4), include.constant = F)
+arima11<-Arima(databni, order=c(1,0,4), include.constant = F)
+arima12<-Arima(databni, order=c(0,0,4), include.constant = F)
+arima13<-Arima(databni, order=c(5,0,3), include.constant = F)
+arima14<-Arima(databni, order=c(4,0,3), include.constant = F)
+arima15<-Arima(databni, order=c(3,0,3), include.constant = F)
+arima16<-Arima(databni, order=c(2,0,3), include.constant = F)
+arima17<-Arima(databni, order=c(1,0,3), include.constant = F)
+arima18<-Arima(databni, order=c(0,0,3), include.constant = F)
+arima19<-Arima(databni, order=c(5,0,2), include.constant = F)
+arima20<-Arima(databni, order=c(4,0,2), include.constant = F)
+arima21<-Arima(databni, order=c(3,0,2), include.constant = F)
+arima22<-Arima(databni, order=c(2,0,2), include.constant = F)
+arima23<-Arima(databni, order=c(1,0,2), include.constant = F)
+arima24<-Arima(databni, order=c(0,0,2), include.constant = F)
+arima25<-Arima(databni, order=c(5,0,1), include.constant = F)
+arima26<-Arima(databni, order=c(4,0,1), include.constant = F)
+arima27<-Arima(databni, order=c(3,0,1), include.constant = F)
+arima28<-Arima(databni, order=c(2,0,1), include.constant = F)
+arima29<-Arima(databni, order=c(1,0,1), include.constant = F)
+arima30<-Arima(databni, order=c(0,0,1), include.constant = F)
+arima31<-Arima(databni, order=c(5,0,0), include.constant = F)
+arima32<-Arima(databni, order=c(4,0,0), include.constant = F)
+arima33<-Arima(databni, order=c(3,0,0), include.constant = F)
+arima34<-Arima(databni, order=c(2,0,0), include.constant = F)
+arima35<-Arima(databni, order=c(1,0,0), include.constant = F)
+```
+
+```{r}
+coeftest(arima1)
+```
+
+```{r}
+coeftest(arima2)
+```
+
+```{r}
+coeftest(arima3)
+```
+
+```{r}
+coeftest(arima4)
+```
+
+
+```{r}
+coeftest(arima5)
+```
+
+
+```{r}
+coeftest(arima6)
+```
+
+
+```{r}
+coeftest(arima7)
+```
+
+
+```{r}
+coeftest(arima8)
+```
+
+
+```{r}
+coeftest(arima9)
+```
+
+
+```{r}
+coeftest(arima10)
+```
+
+
+```{r}
+coeftest(arima11)
+```
+
+
+```{r}
+coeftest(arima12)
+```
+
+
+```{r}
+coeftest(arima13)
+```
+
+
+```{r}
+coeftest(arima14)
+```
+
+
+```{r}
+coeftest(arima15)
+```
+
+
+```{r}
+coeftest(arima16)
+```
+
+
+```{r}
+coeftest(arima17)
+```
+
+
+```{r}
+coeftest(arima18)
+```
+
+
+```{r}
+coeftest(arima19)
+```
+
+
+```{r}
+coeftest(arima20)
+```
+
+
+```{r}
+coeftest(arima21)
+```
+
+
+```{r}
+coeftest(arima22)
+```
+
+
+```{r}
+coeftest(arima23)
+```
+
+
+```{r}
+coeftest(arima24)
+```
+
+
+```{r}
+coeftest(arima25)
+```
+
+
+```{r}
+coeftest(arima26)
+```
+
+
+```{r}
+coeftest(arima27)
+```
+
+
+```{r}
+coeftest(arima28)
+```
+
+
+```{r}
+coeftest(arima29)
+```
+
+
+```{r}
+coeftest(arima30)
+```
+
+
+```{r}
+coeftest(arima31)
+```
+
+
+```{r}
+coeftest(arima32)
+```
+
+
+```{r}
+coeftest(arima33)
+```
+
+
+```{r}
+coeftest(arima34)
+```
+
+
+```{r}
+coeftest(arima35)
+```
+
+```{r}
+checkresiduals(arima8)
+```
+galat autokorelasi
+
+```{r}
+checkresiduals(arima29)
+```
+galat autokorelasi 
+
+```{r}
+adf.test(residuals(arima8))
+```
+Residual bersifat stasioner
+```{r}
+adf.test(residuals(arima29))
+```
+```{r}
+jb.norm.test(residuals(arima8))
+```
+Residual tidak normal
+```{r}
+jb.norm.test(residuals(arima29))
+```
+Residual tidak normal
+```{r}
+tabel=cbind(arima8,arima29)
+tabelperbandingan=cbind(tabel[6,],tabel[16,],tabel[5,])
+colnames(tabelperbandingan)=c('AIC','BIC','Loglik')
+tabelperbandingan
+```
+Didapatkan model terbaik adalah model arima (4,0,4) tanpa konstanta 
+
+```{r}
+model = arima(databni,order=c(0,0,3),include.mean = T)
+```
+
+```{r}
+library(forecast)
+library(lmtest)
+library(aTSA)
+library(fGarch)
+arch.test(model)
+
+```
+
+```{r}
+garch11T=garchFit(~arma(4,4)+garch(1,1),data=databni,include.mean=T,trace=F)
+garch10T=garchFit(~arma(4,4)+garch(1,0),data=databni,include.mean=T,trace=F)
+garch11F=garchFit(~arma(4,4)+garch(1,1),data=databni,include.mean=F,trace=F)
+garch10F=garchFit(~arma(4,4)+garch(1,0),data=databni,include.mean=F,trace=F)
+```
+
+```{r}
+summary(garch11T)
+```
+
+
+```{r}
+summary(garch10T)
+```
+
+
+```{r}
+summary(garch11F)
+```
+
+
+```{r}
+summary(garch10F)
+```
+
+```{r}
+residuals(garch11T)
+```
+
+```{r}
+resid=residuals(garch11T)
+library(nortest)
+lillie.test(resid)
+```
+
